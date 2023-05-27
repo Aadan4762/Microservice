@@ -1,0 +1,8 @@
+server:
+  port: 8088
+
+#by default profile is Git because our config server should fetch configuration from git
+  #But we can change it to local configuration by using profiles native
+spring:
+  profiles:
+    active: native

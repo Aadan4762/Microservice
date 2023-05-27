@@ -1,0 +1,8 @@
+
+spring:
+  application:
+    name: department-service
+#our department service should fetch configuration from configurations package
+#from department-service.yaml
+  config:
+    import: "optional:configserver:http://localhost:8088"

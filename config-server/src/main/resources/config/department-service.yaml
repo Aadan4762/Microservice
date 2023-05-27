@@ -1,0 +1,25 @@
+server:
+   port: 8081
+
+  #our department service should connect to our service registry of:
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Departments
+
+    username: postgres
+    password: password
+
+
+
+
+
