@@ -14,10 +14,15 @@ management:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/Departments
+    url: jdbc:postgresql://localhost:5432/Department
 
     username: postgres
-    password: password
+    password: Password
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
 
 
 

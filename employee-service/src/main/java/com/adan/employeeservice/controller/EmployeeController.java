@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/employees")
+@RequestMapping("/api/v1/employees")
 public class EmployeeController {
 
     @Autowired
@@ -30,7 +30,7 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List <EmployeeDto> getAllEmployees(){
         return employeeService.getAllEmployees().stream().map(employee -> modelMapper.map(employee, EmployeeDto.class))
                 .collect(Collectors.toList());
@@ -44,7 +44,7 @@ public class EmployeeController {
         return ResponseEntity.ok().body(employeeResponse);
 
     }
-    @PostMapping
+    @PostMapping("/create")
     public  ResponseEntity <EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto){
         Employee employeeRequest = modelMapper.map(employeeDto, Employee.class);
         Employee employee = employeeService.createEmployee(employeeRequest);

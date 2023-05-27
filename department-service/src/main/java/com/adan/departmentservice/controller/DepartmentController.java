@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/department")
+@RequestMapping("/api/v2/department")
 public class DepartmentController {
 
     @Autowired
@@ -25,7 +25,7 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
    public List<DepartmentDto>getListOfDepartment(){
         return departmentService.getAlldepartment().stream().map(department -> modelMapper.map(department, DepartmentDto.class))
                 .collect(Collectors.toList());
@@ -37,7 +37,7 @@ public class DepartmentController {
         DepartmentDto departmentResponse = modelMapper.map(department, DepartmentDto.class);
         return ResponseEntity.ok().body(departmentResponse);
    }
-   @PostMapping("/{id}")
+   @PostMapping("/create")
    public ResponseEntity<DepartmentDto> createDepartment(@RequestBody DepartmentDto departmentDto){
         Department departmentRequest = modelMapper.map(departmentDto, Department.class);
         Department department = departmentService.addDepartment(departmentRequest);
