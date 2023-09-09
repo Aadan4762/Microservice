@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: IDENTITY-SERVICE
+
+eureka:
+  client:
+    service-url:
+      defaultZone : http://localhost:8761/eureka/
+
+
+server:
+  port: 9898
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
