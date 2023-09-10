@@ -39,7 +39,7 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable("id") int id){
         Employee employee = employeeService.getEmployeeById(id);
         EmployeeDto employeeResponse = modelMapper.map(employee, EmployeeDto.class);
-        DepartmentDto departmentDto = restTemplate.getForObject("http://localhost:8081/department/{id}", DepartmentDto.class, id);
+        DepartmentDto departmentDto = restTemplate.getForObject("http://localhost:8081/api/v2/department/{id}", DepartmentDto.class, id);
         employeeResponse.setDepartmentDto(departmentDto);
         return ResponseEntity.ok().body(employeeResponse);
 
