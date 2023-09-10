@@ -23,14 +23,14 @@ spring:
         - id: employee-service
           uri: lb://employee-service
           predicates:
-            - Path=/employee/**
+            - Path=/api/v1/employees/**
           filters:
             - AuthenticationFilter
 
         - id: department-service
           uri: lb://department-service
           predicates:
-            - Path=/department/**
+            - Path=/api/v2/department/**
           filters:
             - AuthenticationFilter
 
