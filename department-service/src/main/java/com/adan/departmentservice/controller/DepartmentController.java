@@ -1,63 +1,73 @@
 package com.adan.departmentservice.controller;
 
-import com.adan.departmentservice.dto.DepartmentDto;
-import com.adan.departmentservice.model.Department;
+import com.adan.departmentservice.dto.DepartmentRequest;
+import com.adan.departmentservice.dto.DepartmentResponse;
 import com.adan.departmentservice.service.DepartmentService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/v2/department")
+@RequiredArgsConstructor
 public class DepartmentController {
 
-    @Autowired
-    private ModelMapper modelMapper;
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
-    public DepartmentController(DepartmentService departmentService) {
-        super();
-        this.departmentService = departmentService;
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String createDepartment(@RequestBody DepartmentRequest departmentRequest) {
+        try {
+            departmentService.addDepartment(departmentRequest);
+            return "Department created successfully";
+        } catch (Exception exception) {
+            return "Failed to create department" + exception.getMessage();
+        }
     }
 
     @GetMapping("/all")
-   public List<DepartmentDto>getListOfDepartment(){
-        return departmentService.getAlldepartment().stream().map(department -> modelMapper.map(department, DepartmentDto.class))
-                .collect(Collectors.toList());
+    @ResponseStatus(HttpStatus.OK)
+    public List<DepartmentResponse> getAllDepartment() {
+        return departmentService.getAllDepartment();
     }
 
     @GetMapping("/{id}")
-   public ResponseEntity  <DepartmentDto> getDepartmentById(@PathVariable("id") int id){
-        Department department = departmentService.getDepartmentById(id);
-        DepartmentDto departmentResponse = modelMapper.map(department, DepartmentDto.class);
-        return ResponseEntity.ok().body(departmentResponse);
-   }
-   @PostMapping("/create")
-   public ResponseEntity<DepartmentDto> createDepartment(@RequestBody DepartmentDto departmentDto){
-        Department departmentRequest = modelMapper.map(departmentDto, Department.class);
-        Department department = departmentService.addDepartment(departmentRequest);
-        DepartmentDto departmentResponse = modelMapper.map(department, DepartmentDto.class);
-        return new ResponseEntity<DepartmentDto>(departmentResponse, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.OK)
+    public Object getDepartmentById(@PathVariable int id) {
+        DepartmentResponse department = departmentService.getDepartmentById(id);
 
-   }
-   @PutMapping("/{id}")
-  public ResponseEntity <DepartmentDto> updateDepartment(@PathVariable int id,@RequestBody DepartmentDto departmentDto){
-        Department departmentRequest = modelMapper.map(departmentDto, Department.class);
-        Department department = departmentService.updateDepartment(id,departmentRequest);
-        DepartmentDto departmentResponse = modelMapper.map(department, DepartmentDto.class);
-        return ResponseEntity.ok().body(departmentResponse);
+        if (department != null) {
+            return department;
+        }else {
+            return "Department not found";
+        }
 
-   }
-   @DeleteMapping("/{id}")
-   public ResponseEntity<String> deleteDepartment(@PathVariable("id") int id){
-        departmentService.deleteDepartmentUsingId(id);
-        return new ResponseEntity<String>("Department Deleted Successfully!", HttpStatus.OK);
-   }
+    }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String updateDepartmentById(@PathVariable int id, @RequestBody DepartmentRequest departmentRequest){
+        boolean isUpdated = departmentService.updateDepartment(id,departmentRequest);
+        if (isUpdated){
+            return "Department updated successfully";
+        }else {
+            return "Department did not update";
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public String deleteDepartmentById(@PathVariable int id){
+        boolean isDeleted = departmentService.deleteDepartmentById(id);
+
+        if (isDeleted){
+            return "Department deleted successfully";
+        }else {
+            return "Department could not be found";
+        }
+    }
 
 }

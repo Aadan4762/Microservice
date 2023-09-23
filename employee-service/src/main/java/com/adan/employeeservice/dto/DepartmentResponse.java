@@ -1,24 +1,15 @@
-package com.adan.departmentservice.model;
-
-
+package com.adan.employeeservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
-@Entity
-@Table(name = "departments")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Department {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class DepartmentResponse {
     private int id;
     private String name;
-
 }

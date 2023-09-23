@@ -1,57 +1,69 @@
 package com.adan.departmentservice.service;
 
-import com.adan.departmentservice.exception.ResourceNotFoundException;
+import com.adan.departmentservice.dto.DepartmentRequest;
+import com.adan.departmentservice.dto.DepartmentResponse;
 import com.adan.departmentservice.model.Department;
 import com.adan.departmentservice.repository.DepartmentRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class DepartmentServiceImplementation implements DepartmentService{
 
-    private DepartmentRepository departmentRepository;
 
-    public DepartmentServiceImplementation(DepartmentRepository departmentRepository) {
-        super();
-        this.departmentRepository = departmentRepository;
+    private final DepartmentRepository departmentRepository;
+    @Override
+    public List<DepartmentResponse> getAllDepartment() {
+        List<Department> departments = departmentRepository.findAll();
+        return departments.stream().map(this::mapToDepartmentResponse).toList();
+    }
+
+    private DepartmentResponse mapToDepartmentResponse(Department department) {
+        return DepartmentResponse.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .build();
     }
 
     @Override
-    public List<Department> getAlldepartment() {
-        return departmentRepository.findAll();
+    public DepartmentResponse getDepartmentById(int id) {
+        Optional<Department> departmentOptional = departmentRepository.findById(id);
+        return departmentOptional.map(this::mapToDepartmentResponse).orElse(null);
     }
 
     @Override
-    public Department getDepartmentById(int id) {
-        Optional<Department> result = departmentRepository.findById(id);
-        if (result.isPresent()){
-            return result.get();
-        }else {
-            throw new ResourceNotFoundException("Department","id",id);
-        }
+    public void addDepartment(DepartmentRequest departmentRequest) {
+        Department department = Department.builder()
+                .name(departmentRequest.getName())
+                .build();
+        departmentRepository.save(department);
     }
 
     @Override
-    public Department addDepartment(Department department) {
-        return departmentRepository.save(department);
+    public boolean updateDepartment(int id, DepartmentRequest departmentRequest) {
+        Optional<Department> existingDepartmentOptional = departmentRepository.findById(id);
+        existingDepartmentOptional.ifPresent(existingDepartment -> {
+            existingDepartment.setName(departmentRequest.getName());
+            departmentRepository.save(existingDepartment);
+            log.info("Department {} is updated", existingDepartment.getId());
+        });
+        return false;
     }
 
     @Override
-    public Department updateDepartment(int id, Department department) {
-        Department departmental = departmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
-        departmental.setName(department.getName());
-        return departmentRepository.save(departmental);
-    }
+    public boolean deleteDepartmentById(int id) {
+        Optional<Department> departmentOptional = departmentRepository.findById(id);
 
-    @Override
-    public void deleteDepartmentUsingId(int id) {
-        Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Department", "id",id));
-        departmentRepository.delete(department);
-
-
+        departmentOptional.ifPresent(department -> {
+            departmentRepository.delete(department);
+           log.info("Department {} is deleted", department.getId());
+        });
+        return false;
     }
 }

@@ -1,70 +1,84 @@
 package com.adan.employeeservice.controller;
 
-import com.adan.employeeservice.dto.DepartmentDto;
-import com.adan.employeeservice.dto.EmployeeDto;
-import com.adan.employeeservice.entity.Employee;
+import com.adan.employeeservice.dto.DepartmentResponse;
+import com.adan.employeeservice.dto.EmployeeRequest;
+import com.adan.employeeservice.dto.EmployeeResponse;
 import com.adan.employeeservice.service.EmployeeService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/employees")
+@RequiredArgsConstructor
+@RequestMapping("api/v1/employee")
 public class EmployeeController {
 
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private RestTemplate restTemplate;
+    private final EmployeeService employeeService;
+    private final RestTemplate restTemplate;
 
-    private EmployeeService employeeService;
-
-    public EmployeeController(EmployeeService employeeService) {
-        super();
-        this.employeeService = employeeService;
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String createEmployee(@RequestBody EmployeeRequest employeeRequest) {
+        try {
+            employeeService.createEmployee(employeeRequest);
+            return "Employee created successfully";
+        } catch (Exception exception) {
+            return "Failed to create employee" + exception.getMessage();
+        }
     }
 
     @GetMapping("/all")
-    public List <EmployeeDto> getAllEmployees(){
-        return employeeService.getAllEmployees().stream().map(employee -> modelMapper.map(employee, EmployeeDto.class))
-                .collect(Collectors.toList());
+    @ResponseStatus(HttpStatus.OK)
+    public List<EmployeeResponse> getAllEmployees() {
+        return employeeService.getAllEmployees();
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable("id") int id){
-        Employee employee = employeeService.getEmployeeById(id);
-        EmployeeDto employeeResponse = modelMapper.map(employee, EmployeeDto.class);
-        DepartmentDto departmentDto = restTemplate.getForObject("http://localhost:8081/api/v2/department/{id}", DepartmentDto.class, id);
-        employeeResponse.setDepartmentDto(departmentDto);
-        return ResponseEntity.ok().body(employeeResponse);
+    @ResponseStatus(HttpStatus.OK)
+    public Object getEmployeeById(@PathVariable int id) {
+        EmployeeResponse employee = employeeService.getEmployeeById(id);
 
-    }
-    @PostMapping("/create")
-    public  ResponseEntity <EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto){
-        Employee employeeRequest = modelMapper.map(employeeDto, Employee.class);
-        Employee employee = employeeService.createEmployee(employeeRequest);
-        EmployeeDto employeeResponse = modelMapper.map(employee, EmployeeDto.class);
-        return new ResponseEntity<EmployeeDto>(employeeResponse, HttpStatus.CREATED);
+        if (employee != null) {
+            // Make a REST call to the department service to get department information
+            ResponseEntity<DepartmentResponse> responseEntity = restTemplate.getForEntity(
+                    "http://localhost:8081/api/v2/department/" + employee.getId(), DepartmentResponse.class);
 
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                employee.setDepartment(String.valueOf(responseEntity.getBody()));
+            }
+
+            return employee;
+        } else {
+            return "Employee not found";
+        }
     }
+
+
     @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable int id, @RequestBody EmployeeDto employeeDto) {
-        Employee employeeRequest = modelMapper.map(employeeDto, Employee.class);
-        Employee employee = employeeService.updateEmployee(id, employeeRequest);
-        EmployeeDto employeeResponse = modelMapper.map(employee, EmployeeDto.class);
-        return ResponseEntity.ok().body(employeeResponse);
+    @ResponseStatus(HttpStatus.OK)
+    public String updateEmployeeById(@PathVariable int id, @RequestBody EmployeeRequest employeeRequest){
+        boolean isUpdated = employeeService.updateEmployeeById( employeeRequest, id);
+        if (isUpdated){
+            return "Employee updated successfully";
+        }else {
+            return "Employee did not update";
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable("id") int id){
-        employeeService.deleteEmployeeById(id);
-        return new ResponseEntity<String>("Employee successfully deleted!", HttpStatus.OK);
-    }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public String deleteEmployeeById(@PathVariable int id){
+        boolean isDeleted = employeeService.deleteEmployeeById(id);
 
+        if (isDeleted){
+            return "Employee deleted successfully";
+        }else {
+            return "Employee could not be found";
+        }
+    }
 
 }
