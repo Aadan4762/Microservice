@@ -22,8 +22,6 @@ public class AuthConfig {
     public UserDetailsService userDetailsService(){
         return new CustomUserDetailsService();
     }
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
@@ -32,7 +30,6 @@ public class AuthConfig {
                 .and()
                 .build();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

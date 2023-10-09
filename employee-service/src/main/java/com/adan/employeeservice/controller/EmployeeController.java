@@ -43,7 +43,6 @@ public class EmployeeController {
         EmployeeResponse employee = employeeService.getEmployeeById(id);
 
         if (employee != null) {
-            // Make a REST call to the department service to get department information
             ResponseEntity<DepartmentResponse> responseEntity = restTemplate.getForEntity(
                     "http://localhost:8081/api/v2/department/" + employee.getId(), DepartmentResponse.class);
 
