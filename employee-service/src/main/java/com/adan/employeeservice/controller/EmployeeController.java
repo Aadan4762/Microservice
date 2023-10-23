@@ -4,6 +4,7 @@ import com.adan.employeeservice.dto.DepartmentResponse;
 import com.adan.employeeservice.dto.EmployeeRequest;
 import com.adan.employeeservice.dto.EmployeeResponse;
 import com.adan.employeeservice.service.EmployeeService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
     private final RestTemplate restTemplate;
+    private static final String EMPLOYEE_SERVICE = "employeeService";
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,6 +40,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
+    @CircuitBreaker(name = EMPLOYEE_SERVICE, fallbackMethod = "serviceAFallback")
     @ResponseStatus(HttpStatus.OK)
     public Object getEmployeeById(@PathVariable int id) {
         EmployeeResponse employee = employeeService.getEmployeeById(id);
@@ -54,6 +57,9 @@ public class EmployeeController {
         } else {
             return "Employee not found";
         }
+    }
+    public Object serviceAFallback(Exception e) {
+        return "This is a fallback method for Employee Service";
     }
 
 
