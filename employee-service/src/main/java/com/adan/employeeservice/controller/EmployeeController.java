@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    @CircuitBreaker(name = EMPLOYEE_SERVICE, fallbackMethod = "serviceAFallback")
+    @CircuitBreaker(name = EMPLOYEE_SERVICE, fallbackMethod = "employeeServiceFallback")
     @ResponseStatus(HttpStatus.OK)
     public Object getEmployeeById(@PathVariable int id) {
         EmployeeResponse employee = employeeService.getEmployeeById(id);
@@ -58,7 +58,7 @@ public class EmployeeController {
             return "Employee not found";
         }
     }
-    public Object serviceAFallback(Exception e) {
+    public Object employeeServiceFallback(Exception e) {
         return "This is a fallback method for Employee Service";
     }
 
