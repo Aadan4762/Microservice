@@ -6,6 +6,7 @@ import com.adan.employeeservice.dto.EmployeeResponse;
 import com.adan.employeeservice.service.EmployeeService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,9 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    @Autowired
     private final RestTemplate restTemplate;
-    private static final String EMPLOYEE_SERVICE = "employeeService";
+    private static final String EMPLOYEE_SERVICE = "employee-Service";
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
