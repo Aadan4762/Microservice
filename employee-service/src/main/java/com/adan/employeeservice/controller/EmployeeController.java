@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class EmployeeController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createEmployee(@RequestBody EmployeeRequest employeeRequest) {
+    public String createEmployee(@RequestBody @Valid EmployeeRequest employeeRequest) {
         try {
             employeeService.createEmployee(employeeRequest);
             return "Employee created successfully";
@@ -44,7 +45,7 @@ public class EmployeeController {
     @GetMapping("/{id}")
     @CircuitBreaker(name = EMPLOYEE_SERVICE, fallbackMethod = "employeeServiceFallback")
     @ResponseStatus(HttpStatus.OK)
-    public Object getEmployeeById(@PathVariable int id) {
+    public Object getEmployeeById(@Valid @PathVariable int id) {
         EmployeeResponse employee = employeeService.getEmployeeById(id);
 
         if (employee != null) {

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -19,7 +20,7 @@ public class DepartmentController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createDepartment(@RequestBody DepartmentRequest departmentRequest) {
+    public String createDepartment(@RequestBody @Valid DepartmentRequest departmentRequest) {
         try {
             departmentService.addDepartment(departmentRequest);
             return "Department created successfully";
