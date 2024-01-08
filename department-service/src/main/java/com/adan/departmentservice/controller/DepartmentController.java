@@ -31,8 +31,13 @@ public class DepartmentController {
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<DepartmentResponse> getAllDepartment() {
-        return departmentService.getAllDepartment();
+    public List<DepartmentResponse> getAllDepartments(
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return departmentService.getAllDepartment(sortBy, sortOrder, page, pageSize);
     }
 
     @GetMapping("/{id}")
