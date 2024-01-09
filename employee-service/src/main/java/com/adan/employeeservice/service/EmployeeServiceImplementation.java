@@ -78,6 +78,7 @@ public class EmployeeServiceImplementation implements EmployeeService{
         });
         return false;
     }
+    /*
     public List<Employee> findEmployeesWithSorting(String field){
         return  employeeRepository.findAll(Sort.by(Sort.Direction.ASC,field));
     }
@@ -92,4 +93,5 @@ public class EmployeeServiceImplementation implements EmployeeService{
         Page<Employee> employees = employeeRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field)));
         return  employees;
     }
+     */
 }

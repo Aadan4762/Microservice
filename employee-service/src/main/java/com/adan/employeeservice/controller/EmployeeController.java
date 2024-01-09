@@ -1,6 +1,5 @@
 package com.adan.employeeservice.controller;
 
-import com.adan.employeeservice.dto.APIResponse;
 import com.adan.employeeservice.dto.DepartmentResponse;
 import com.adan.employeeservice.dto.EmployeeRequest;
 import com.adan.employeeservice.dto.EmployeeResponse;
@@ -8,7 +7,6 @@ import com.adan.employeeservice.entity.Employee;
 import com.adan.employeeservice.service.EmployeeService;
 import com.adan.employeeservice.service.EmployeeServiceImplementation;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -95,6 +94,7 @@ public class EmployeeController {
         }
     }
 
+    /*
     @GetMapping("/{field}")
     private APIResponse<List<Employee>> getEmployeesWithSort(@PathVariable String field) {
         List<Employee> allEmployees = employeeServiceImplementation.findEmployeesWithSorting(field);
@@ -112,5 +112,5 @@ public class EmployeeController {
         Page<Employee> employeesWithPagination = employeeServiceImplementation.findEmployeesWithPaginationAndSorting(offset, pageSize, field);
         return new APIResponse<>(employeesWithPagination.getSize(), employeesWithPagination);
     }
-
+*/
 }
