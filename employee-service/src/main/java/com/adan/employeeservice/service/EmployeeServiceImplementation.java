@@ -7,6 +7,9 @@ import com.adan.employeeservice.exception.ResourceNotFoundException;
 import com.adan.employeeservice.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,5 +77,19 @@ public class EmployeeServiceImplementation implements EmployeeService{
             employeeRepository.save(existingEmployee);
         });
         return false;
+    }
+    public List<Employee> findEmployeesWithSorting(String field){
+        return  employeeRepository.findAll(Sort.by(Sort.Direction.ASC,field));
+    }
+
+
+    public Page<Employee> findEmployeesWithPagination(int offset, int pageSize){
+        Page<Employee> employees = employeeRepository.findAll(PageRequest.of(offset, pageSize));
+        return  employees;
+    }
+
+    public Page<Employee> findEmployeesWithPaginationAndSorting(int offset,int pageSize,String field){
+        Page<Employee> employees = employeeRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field)));
+        return  employees;
     }
 }

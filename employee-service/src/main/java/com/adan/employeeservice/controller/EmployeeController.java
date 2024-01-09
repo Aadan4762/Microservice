@@ -1,18 +1,23 @@
 package com.adan.employeeservice.controller;
 
+import com.adan.employeeservice.dto.APIResponse;
 import com.adan.employeeservice.dto.DepartmentResponse;
 import com.adan.employeeservice.dto.EmployeeRequest;
 import com.adan.employeeservice.dto.EmployeeResponse;
+import com.adan.employeeservice.entity.Employee;
 import com.adan.employeeservice.service.EmployeeService;
+import com.adan.employeeservice.service.EmployeeServiceImplementation;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -21,6 +26,7 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final EmployeeServiceImplementation employeeServiceImplementation;
     @Autowired
     private final RestTemplate restTemplate;
     private static final String EMPLOYEE_SERVICE = "employee-Service";
@@ -87,6 +93,24 @@ public class EmployeeController {
         }else {
             return "Employee could not be found";
         }
+    }
+
+    @GetMapping("/{field}")
+    private APIResponse<List<Employee>> getEmployeesWithSort(@PathVariable String field) {
+        List<Employee> allEmployees = employeeServiceImplementation.findEmployeesWithSorting(field);
+        return new APIResponse<>(allEmployees.size(), allEmployees);
+    }
+
+    @GetMapping("/pagination/{offset}/{pageSize}")
+    private APIResponse<Page<Employee>> getEmployeesWithPagination(@PathVariable int offset, @PathVariable int pageSize) {
+        Page<Employee> employeesWithPagination = employeeServiceImplementation.findEmployeesWithPagination(offset, pageSize);
+        return new APIResponse<>(employeesWithPagination.getSize(), employeesWithPagination);
+    }
+
+    @GetMapping("/paginationAndSort/{offset}/{pageSize}/{field}")
+    private APIResponse<Page<Employee>> getEmployeesWithPaginationAndSort(@PathVariable int offset, @PathVariable int pageSize,@PathVariable String field) {
+        Page<Employee> employeesWithPagination = employeeServiceImplementation.findEmployeesWithPaginationAndSorting(offset, pageSize, field);
+        return new APIResponse<>(employeesWithPagination.getSize(), employeesWithPagination);
     }
 
 }

@@ -10,14 +10,12 @@ import java.util.List;
 public interface DepartmentService {
 
 
-    List<DepartmentResponse> getAllDepartment(String sortBy, String sortOrder, int page, int pageSize);
+    List<DepartmentResponse> getAllDepartment();
     DepartmentResponse getDepartmentById(int id);
 
     void addDepartment(DepartmentRequest departmentRequest);
     boolean updateDepartment(int id, DepartmentRequest departmentRequest);
     boolean deleteDepartmentById(int id);
-
-
 
 
 }

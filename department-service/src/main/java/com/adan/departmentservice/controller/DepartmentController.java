@@ -1,9 +1,13 @@
 package com.adan.departmentservice.controller;
 
+import com.adan.departmentservice.dto.APIResponse;
 import com.adan.departmentservice.dto.DepartmentRequest;
 import com.adan.departmentservice.dto.DepartmentResponse;
+import com.adan.departmentservice.model.Department;
 import com.adan.departmentservice.service.DepartmentService;
+import com.adan.departmentservice.service.DepartmentServiceImplementation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,7 @@ import java.util.List;
 public class DepartmentController {
 
     private final DepartmentService departmentService;
+    private final DepartmentServiceImplementation departmentServiceImplementation;
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,15 +34,10 @@ public class DepartmentController {
         }
     }
 
-    @GetMapping("/all")
+     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<DepartmentResponse> getAllDepartments(
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortOrder,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        return departmentService.getAllDepartment(sortBy, sortOrder, page, pageSize);
+    public List<DepartmentResponse> getAllDepartment() {
+        return departmentService.getAllDepartment();
     }
 
     @GetMapping("/{id}")
@@ -74,6 +74,23 @@ public class DepartmentController {
         }else {
             return "Department could not be found";
         }
+    }
+    @GetMapping("/{field}")
+    private APIResponse<List<Department>> getDepartmentsWithSort(@PathVariable String field) {
+        List<Department> allDepartments = departmentServiceImplementation.findDepartmentsWithSorting(field);
+        return new APIResponse<>(allDepartments.size(), allDepartments);
+    }
+
+    @GetMapping("/pagination/{offset}/{pageSize}")
+    private APIResponse<Page<Department>> getDepartmentsWithPagination(@PathVariable int offset, @PathVariable int pageSize) {
+        Page<Department> departmentsWithPagination = departmentServiceImplementation.findDepartmentsWithPagination(offset, pageSize);
+        return new APIResponse<>(departmentsWithPagination.getSize(), departmentsWithPagination);
+    }
+
+    @GetMapping("/paginationAndSort/{offset}/{pageSize}/{field}")
+    private APIResponse<Page<Department>> getDepartmentsWithPaginationAndSort(@PathVariable int offset, @PathVariable int pageSize,@PathVariable String field) {
+        Page<Department> departmentsWithPagination = departmentServiceImplementation.findDepartmentsWithPaginationAndSorting(offset, pageSize, field);
+        return new APIResponse<>(departmentsWithPagination.getSize(), departmentsWithPagination);
     }
 
 }

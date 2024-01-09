@@ -23,10 +23,9 @@ public class DepartmentServiceImplementation implements DepartmentService {
     private final DepartmentRepository departmentRepository;
 
     @Override
-    public List<DepartmentResponse> getAllDepartment(String sortBy, String sortOrder, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortOrder), sortBy);
-        Page<Department> departmentPage = departmentRepository.findAll(pageable);
-        return departmentPage.getContent().stream().map(this::mapToDepartmentResponse).toList();
+    public List<DepartmentResponse> getAllDepartment() {
+        List<Department> departments = departmentRepository.findAll();
+        return departments.stream().map(this::mapToDepartmentResponse).toList();
     }
 
     @Override
@@ -69,5 +68,20 @@ public class DepartmentServiceImplementation implements DepartmentService {
                 .id(department.getId())
                 .name(department.getName())
                 .build();
+    }
+
+    public List<Department> findDepartmentsWithSorting(String field){
+        return  departmentRepository.findAll(Sort.by(Sort.Direction.ASC,field));
+    }
+
+
+    public Page<Department> findDepartmentsWithPagination(int offset,int pageSize){
+        Page<Department> departments = departmentRepository.findAll(PageRequest.of(offset, pageSize));
+        return  departments;
+    }
+
+    public Page<Department> findDepartmentsWithPaginationAndSorting(int offset,int pageSize,String field){
+        Page<Department> departments = departmentRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field)));
+        return  departments;
     }
 }
