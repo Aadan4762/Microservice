@@ -4,6 +4,7 @@ import com.adan.employeeservice.dto.DepartmentResponse;
 import com.adan.employeeservice.dto.EmployeeRequest;
 import com.adan.employeeservice.dto.EmployeeResponse;
 import com.adan.employeeservice.entity.Employee;
+import com.adan.employeeservice.exception.ResourceNotFoundException;
 import com.adan.employeeservice.service.EmployeeService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +46,24 @@ public class EmployeeController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> getEmployeeById(@Valid @PathVariable int id) {
         // Retrieve the employee response from the service
-        EmployeeResponse employeeResponse = employeeService.getEmployeeById(id);
-        if (employeeResponse == null) {
+        EmployeeResponse employeeResponse;
+        try {
+            employeeResponse = employeeService.getEmployeeById(id);
+        } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
         }
 
-        DepartmentResponse departmentResponse = webClient.get()
-                .uri("http://localhost:8081/api/v2/department/" + employeeResponse.getDepartment())
-                .retrieve()
-                .bodyToMono(DepartmentResponse.class)
-                .block();
+        DepartmentResponse departmentResponse = null;
+        try {
+            departmentResponse = webClient.get()
+                    .uri("/api/v2/department" + employeeResponse.getDepartment())
+                    .retrieve()
+                    .bodyToMono(DepartmentResponse.class)
+                    .block();
+        } catch (Exception ex) {
+            // Log the exception or handle it accordingly
+            // In this case, we'll continue without setting the departmentResponse
+        }
 
         if (departmentResponse != null) {
             employeeResponse.setDepartment(departmentResponse.getName());
@@ -63,10 +72,12 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeResponse);
     }
 
-    // Fallback method
+
+    // Fallback method for the circuit breaker
     public ResponseEntity<Object> employeeServiceFallback(int id, Throwable throwable) {
-        // Handle fallback logic, e.g., returning a default response
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee service is unavailable");
+        // Log the exception or handle it accordingly
+        // In this case, we'll just return a response indicating that the employee service is unavailable
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Employee service is unavailable");
     }
 
 
