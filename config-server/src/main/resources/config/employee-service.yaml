@@ -26,6 +26,9 @@ spring:
       ddl-auto: create-drop
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   health:
     circuitbreakers:
       enabled: true
@@ -50,3 +53,4 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 3
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
+
