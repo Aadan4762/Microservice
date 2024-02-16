@@ -1,13 +1,11 @@
 package com.adan.employeeservice.service;
 
-
 import com.adan.employeeservice.dto.EmployeeRequest;
 import com.adan.employeeservice.dto.EmployeeResponse;
-import org.springframework.stereotype.Service;
+import com.adan.employeeservice.entity.Employee;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
-
-@Service
 
 public interface EmployeeService {
 
@@ -16,4 +14,8 @@ public interface EmployeeService {
     EmployeeResponse getEmployeeById(int id);
     boolean deleteEmployeeById(int id);
     boolean updateEmployeeById(EmployeeRequest employeeRequest, int id);
+    List<Employee> findEmployeesWithSorting(String field);
+    Page<Employee> findEmployeesWithPagination(int offset, int pageSize);
+    Page<Employee> findEmployeesWithPaginationAndSorting(int offset,int pageSize,String field);
 }
+
