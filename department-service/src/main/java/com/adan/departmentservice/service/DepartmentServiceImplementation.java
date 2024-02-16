@@ -2,6 +2,7 @@ package com.adan.departmentservice.service;
 
 import com.adan.departmentservice.dto.DepartmentRequest;
 import com.adan.departmentservice.dto.DepartmentResponse;
+import com.adan.departmentservice.exception.DepartmentNotFoundException;
 import com.adan.departmentservice.model.Department;
 import com.adan.departmentservice.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,42 +27,47 @@ public class DepartmentServiceImplementation implements DepartmentService {
     @Override
     public List<DepartmentResponse> getAllDepartment() {
         List<Department> departments = departmentRepository.findAll();
-        return departments.stream().map(this::mapToDepartmentResponse).toList();
+        return departments.stream()
+                .map(this::mapToDepartmentResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public DepartmentResponse getDepartmentById(int id) {
         Optional<Department> departmentOptional = departmentRepository.findById(id);
-        return departmentOptional.map(this::mapToDepartmentResponse).orElse(null);
+        return departmentOptional.map(this::mapToDepartmentResponse)
+                .orElseThrow(() -> new DepartmentNotFoundException("Department with ID " + id + " not found"));
     }
 
     @Override
     public void addDepartment(DepartmentRequest departmentRequest) {
-        Department department = Department.builder()
-                .name(departmentRequest.getName())
-                .build();
+        Department department = new Department();
+        department.setName(departmentRequest.getName());
         departmentRepository.save(department);
     }
 
     @Override
     public boolean updateDepartment(int id, DepartmentRequest departmentRequest) {
         Optional<Department> existingDepartmentOptional = departmentRepository.findById(id);
-        existingDepartmentOptional.ifPresent(existingDepartment -> {
+        return existingDepartmentOptional.map(existingDepartment -> {
             existingDepartment.setName(departmentRequest.getName());
             departmentRepository.save(existingDepartment);
             log.info("Department {} is updated", existingDepartment.getId());
+            return true;
+        }).orElseGet(() -> {
+            log.error("Department with id {} not found, update failed", id);
+            return false;
         });
-        return false;
     }
 
     @Override
     public boolean deleteDepartmentById(int id) {
         Optional<Department> departmentOptional = departmentRepository.findById(id);
-        departmentOptional.ifPresent(department -> {
+        return departmentOptional.map(department -> {
             departmentRepository.delete(department);
             log.info("Department {} is deleted", department.getId());
-        });
-        return false;
+            return true;
+        }).orElse(false);
     }
 
     private DepartmentResponse mapToDepartmentResponse(Department department) {
@@ -70,18 +77,15 @@ public class DepartmentServiceImplementation implements DepartmentService {
                 .build();
     }
 
-    public List<Department> findDepartmentsWithSorting(String field){
-        return  departmentRepository.findAll(Sort.by(Sort.Direction.ASC,field));
+    public List<Department> findDepartmentsWithSorting(String field) {
+        return departmentRepository.findAll(Sort.by(Sort.Direction.ASC, field));
     }
 
-
-    public Page<Department> findDepartmentsWithPagination(int offset,int pageSize){
-        Page<Department> departments = departmentRepository.findAll(PageRequest.of(offset, pageSize));
-        return  departments;
+    public Page<Department> findDepartmentsWithPagination(int offset, int pageSize) {
+        return departmentRepository.findAll(PageRequest.of(offset, pageSize));
     }
 
-    public Page<Department> findDepartmentsWithPaginationAndSorting(int offset,int pageSize,String field){
-        Page<Department> departments = departmentRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field)));
-        return  departments;
+    public Page<Department> findDepartmentsWithPaginationAndSorting(int offset, int pageSize, String field) {
+        return departmentRepository.findAll(PageRequest.of(offset, pageSize, Sort.by(field)));
     }
 }
