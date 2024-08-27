@@ -1,4 +1,5 @@
-# Microservice
+# Microservice 
+#This project covers all requirements for Microservice to work together,here are what is covered in this project
 The spring boot project consists of API gateway, Service Registry, Config server,Zipkin for tracing and Internal communication between two microservice with the use of RestTemplate
 Services: Identity-service, employee-service, Department-service, Api-gateway service, Config-server.
 #Zipkin - for log tracing I used Zipkin and sleuth
